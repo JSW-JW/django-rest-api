@@ -19,8 +19,8 @@ class UpdateQuerySet(models.QuerySet):
     #     return json.dumps(final_array)
 
     def serialize(self):
-        data = self.values('user', 'content', 'image', 'id')
-        return json.dumps(data)
+        list_values = list(self.values("user", "content", "image", "id"))
+        return json.dumps(list_values)
 
 
 class UpdateManager(models.Manager):
