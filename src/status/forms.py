@@ -1,17 +1,23 @@
 from django import forms
 
+from .models import Status
 
-from src.updates.models import Update as UpdateModel
 
+class StatusForm(forms.ModelForm):
 
-class UpdateModelForm(forms.ModelForm):
     class Meta:
-        model = UpdateModel
-        fields = [
+        model = Status
+        fields = (
             'user',
             'content',
             'image'
-        ]
+        )
+
+    def clean_content(self, *args, **kwargs):
+        content = self.cleaned_data.get('content')
+        if len(content) > 240:
+            raise forms.ValidationError("Content is too long")
+        return content
 
     def clean(self, *args, **kwargs):
         data = self.cleaned_data
