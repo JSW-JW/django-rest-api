@@ -53,10 +53,9 @@ def create_update_not_allowed():
 
 def do_obj_update():
     new_data = {
-        'user': 1,
-        "content": "updated"
+        "content": "how about now?"
     }
-    r = requests.put(BASE_URL + ENDPOINT + "1/", data=json.dumps(new_data))
+    r = requests.put(BASE_URL + ENDPOINT + "2/", data=json.dumps(new_data))
 
     print(r.status_code)
     if r.status_code == requests.codes.ok:
@@ -65,7 +64,7 @@ def do_obj_update():
 
 
 def do_obj_delete():
-    r = requests.delete(BASE_URL + ENDPOINT + "1/")
+    r = requests.delete(BASE_URL + ENDPOINT + "3/")
 
     print(r.status_code)
     if r.status_code == requests.codes.ok:
@@ -73,4 +72,4 @@ def do_obj_delete():
     return r.text
 
 
-print(create_update())
+print(do_obj_update())
