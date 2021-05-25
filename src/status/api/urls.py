@@ -1,13 +1,10 @@
 from django.conf.urls import url
 from django.urls import path, include
 
-from .views import (StatusListSearchAPIView,
-                    StatusAPIView,
-                    StatusDetailAPIView)
+from .views import (StatusAPIView,)
 
 urlpatterns = [
     path('', StatusAPIView.as_view()),
-    path('<int:id>/', StatusDetailAPIView.as_view()),
 ]
 
 

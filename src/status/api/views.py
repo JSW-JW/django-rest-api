@@ -4,24 +4,30 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import mixins
 
+from django.shortcuts import get_object_or_404
+
 from .serializers import StatusSerializer
 from ..models import Status
 
 
-class StatusListSearchAPIView(APIView):
-    permission_classes = []
-    authentication_classes = []
+# class StatusListSearchAPIView(APIView):
+#     permission_classes = []
+#     authentication_classes = []
+#
+#     def get(self, request, format=None):
+#         qs = Status.objects.all()
+#         serializer = StatusSerializer(qs, many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request, format=None):
+#         pass
 
-    def get(self, request, format=None):
-        qs = Status.objects.all()
-        serializer = StatusSerializer(qs, many=True)
-        return Response(serializer.data)
 
-    def post(self, request, format=None):
-        pass
-
-
-class StatusAPIView(mixins.CreateModelMixin, generics.ListAPIView):
+class StatusAPIView(mixins.CreateModelMixin,
+                    mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin,
+                    generics.ListAPIView):
     permission_classes = []
     authentication_classes = []
     queryset = Status.objects.all()
@@ -34,12 +40,34 @@ class StatusAPIView(mixins.CreateModelMixin, generics.ListAPIView):
             qs = qs.filter(content__icontains=query)
         return qs
 
+    def get_object(self):
+        request = self.request
+        passed_id = request.GET.get('id', None)
+        queryset = self.get_queryset()
+        obj = None
+        if passed_id is not None:
+            obj = get_object_or_404(queryset, id=passed_id)
+            self.check_object_permissions(request, obj)
+        return obj
+
+    def get(self, *args, **kwargs): # overrides 'get' method from ListAPIView
+        request = self.request
+        passed_id = request.GET.get('id', None)
+        if passed_id is not None:
+            return self.retrieve(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
 
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 
 # class StatusDetailAPIView(mixins.DestroyModelMixin,
@@ -58,20 +86,20 @@ class StatusAPIView(mixins.CreateModelMixin, generics.ListAPIView):
 #         return self.destroy(request, *args, **kwargs)
 
 
-class StatusDetailAPIView(generics.RetrieveAPIView):
-    permission_classes = []
-    authentication_classes = []
-    queryset = Status.objects.all()
-    serializer_class = StatusSerializer
-    lookup_field = 'id'
-
-
-    def get(self, *args, **kwargs):
-        kwargs = self.kwargs
-        kw_id = kwargs.get('id')
-        try:
-            obj = Status.objects.get(id=kw_id)
-            return obj
-        except Status.DoesNotExist:
-            return Response({"detail":"model not found"}, status=404)
+# class StatusDetailAPIView(generics.RetrieveAPIView):
+#     permission_classes = []
+#     authentication_classes = []
+#     queryset = Status.objects.all()
+#     serializer_class = StatusSerializer
+#     lookup_field = 'id'
+#
+#
+#     def get(self, *args, **kwargs):
+#         kwargs = self.kwargs
+#         kw_id = kwargs.get('id')
+#         try:
+#             obj = Status.objects.get(id=kw_id)
+#             return obj
+#         except Status.DoesNotExist:
+#             return Response({"detail":"model not found"}, status=404)
 
