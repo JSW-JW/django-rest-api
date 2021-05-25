@@ -7,14 +7,13 @@ class StatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
         fields = (
+            'id',
             'user',
             'content',
             'image'
         )
 
-
-    def validate_content(self, data):
-        content = data.get('content')
+    def validate_content(self, content):
         if len(content) > 1000:
             raise serializers.ValidationError("Content is too long.")
 
