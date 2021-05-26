@@ -51,22 +51,22 @@ class StatusAPIView(mixins.CreateModelMixin,
             qs = qs.filter(content__icontains=query)
         return qs
 
-    # def get_object(self):
-    #     request = self.request
-    #     passed_id = request.GET.get('id', None) or self.passed_id
-    #     queryset = self.get_queryset()
-    #     obj = None
-    #     if passed_id is not None:
-    #         obj = get_object_or_404(queryset, id=passed_id)
-    #         self.check_object_permissions(request, obj)
-    #     return obj
-
     def get_object(self):
-        id = json.loads(self.request.body).get('id')
+        request = self.request
+        passed_id = request.GET.get('id', None) or self.passed_id
         queryset = self.get_queryset()
-
-        obj = get_object_or_404(queryset, id=id)
+        obj = None
+        if passed_id is not None:
+            obj = get_object_or_404(queryset, id=passed_id)
+            self.check_object_permissions(request, obj)
         return obj
+
+    # def get_object(self):
+    #     id = json.loads(self.request.body).get('id')
+    #     queryset = self.get_queryset()
+    #
+    #     obj = get_object_or_404(queryset, id=id)
+    #     return obj
 
     def get(self, request, *args, **kwargs): # overrides 'get' method from ListAPIView
         url_passed_id = request.GET.get('id', None)
@@ -94,8 +94,9 @@ class StatusAPIView(mixins.CreateModelMixin,
         if is_json(body_):
             json_data = json.loads(request.body)
         new_passed_id = json_data.get('id', None)
+        requested_id = request.data.get('id')
 
-        passed_id = url_passed_id or new_passed_id or None
+        passed_id = url_passed_id or new_passed_id or requested_id or None
         self.passed_id = passed_id
 
         return self.update(request, *args, **kwargs)
